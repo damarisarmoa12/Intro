@@ -92,3 +92,21 @@ estanRelacionados a b | a == 0 = True
 
 productoInterno :: (Float, Float) -> (Float, Float) -> Float
 productoInterno (a,b) (d,e) = a*d + b*e
+
+--esParMenor: dadas dos tuplas de R × R, decide si cada coordenada de la primera tupla es menor a la coordenada
+--correspondiente de la segunda tupla.
+
+esParMenor :: (Float, Float) -> (Float, Float) -> Bool 
+esParMenor (a,b) (d,e) = a < d && b < e 
+
+--esParMenor (4,5) (1,1) = False 
+--esParMenor (1,1) (2,2) = True 
+
+--crearPar :: a-> b-> (a, b): a partir de dos componentes, crea un par con esos valores. Debe funcionar para ele
+--mentos de cualquier tipo.
+
+crearPar :: a -> b -> (a,b) 
+crearPar a b = (a,b)
+
+--crearPar 4 5 = (4,5)
+
