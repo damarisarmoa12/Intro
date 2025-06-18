@@ -1178,3 +1178,284 @@ def contador_hasta_corte (c: str, s : str) -> int:
          contador += 1 
       return res 
    
+
+"""problema gestion_notas (in notas_estudiante_materia: seq⟨(String x String x Z)) : dict⟨String, seq⟨(String x Z)⟩⟩ {
+  requiere: { Las primeras componentes de notas_estudiante_materia tienen longitud mayor estricto a cero}
+  requiere: { Las segundas componentes de notas_estudiante_materia tienen longitud mayor estricto a cero}
+  requiere: { Las terceras componentes de notas_estudiante_materia están entre 1 y 10, ambos inclusive }
+  requiere: { No hay 2 tuplas en notas_estudiante_materia que tengan la primera y segunda componente iguales (mismo estudiante y misma materia) }
+  asegura: {res tiene como claves solo los primeros elementos de las tuplas de notas_estudiante_materia (o sea, un estudiante)}
+  asegura: {El valor en res de un estudiante es una lista de tuplas donde cada tupla contiene como primera componente el nombre de la materia y como 
+            segunda componente la nota obtenida por el estudiante en esa materia según notas_estudiante_materia}
+  asegura: { Para toda clave (estudiante) en res, en su valor (lista de tuplas) no hay 2 tuplas que tengan la misma primera componente (materia) }
+}
+"""
+
+def gestion_notas (notas_estudiante_materia : list[tuple[str,str,int]]) -> dict[str,list[tuple[str,int]]]: 
+   res = {}
+
+   for estudiante,materia,nota in notas_estudiante_materia: 
+      if estudiante not in res:  #acordate de poner esto cuando queres ingresar claves a un diccionario  
+         res[estudiante] = []
+      res[estudiante].append((materia,nota))
+   return res 
+
+
+lista = [("Agustina","Biologia",9),("Damaris","Programacion",8)]
+print(gestion_notas(lista))
+
+
+"""problema reordenar_cola_primero_pesados(in paquetes: Cola⟨(String x Z)⟩, in umbral:Z): Cola⟨(String x Z)⟩{
+  requiere: {no hay repetidos en las primeras componentes (Ids) de paquetes}
+  requiere: {todos las segundas componentes (pesos) de paquetes son mayores estricto a cero}
+  requiere: {umbral es mayor o igual a cero}
+  asegura: {los elementos de res son exactamente los mismos que los elementos de paquetes}
+  asegura: {|res| = |paquetes|}
+  asegura: {no hay un elemento en res, cuyo peso sea menor o igual que el umbral, que aparezca primero que otro elemento en res cuyo peso sea mayor que 
+            el umbral)}
+  asegura: {Para todo paquete p1 y paquete p2 cuyos pesos son menores o iguales que el umbral y pertenecen a paquetes si p1 aparece primero que p2 en 
+            paquetes entonces p1 aparece primero que p2 en res}
+  asegura: {Para todo paquete p1 y paquete p2 cuyos pesos son mayores que el umbral y pertenecen a paquetes si p1 aparece primero que p2 en paquetes entonces 
+            p1 aparece primero que p2 en res}"""
+
+def reordenar_cola_primero_pesados (paquetes : Cola,umbral : int) -> Cola: #ejercicio para ordenar colas 
+   c =  Cola()
+   paquetes_pesados = Cola()
+   paquetes_livianos = Cola()
+
+   while not paquetes.empty(): 
+      paquete = paquetes.get()
+
+      if paquete[1] > umbral: 
+         paquetes_pesados.put(paquete)
+      else:
+         paquetes_livianos.put(paquete)
+   
+   while not paquetes_pesados.empty(): 
+      c.put(paquetes_pesados.get())
+   while not paquetes_livianos.empty():
+      c.put(paquetes_livianos.get())
+   
+   return c 
+      
+      
+"""matriz_pseudo_ordenada (in matriz: seq⟨seq⟨Z⟩⟩): Bool {
+  requiere: {|matriz| > 0}
+  requiere: {|matriz[0]| > 0}
+  requiere: {todos los elementos de matriz tienen la misma longitud}
+  asegura: {res es igual a True <=> para todo 0<=i<|matriz[0]|-1, el mínimo de la columna i de matriz < el mínimo de la columna i + 1 de matriz }
+}"""
+
+def matriz_pseudo_ordenada (matriz : list[list[int]]) -> bool: 
+
+   fila = len(matriz)
+   columna = len(matriz[0])
+
+   for i in range(columna - 1): 
+      minimo = matriz[0][i] #matriz[0] representa la primera fila 
+      minimo_siguiente = matriz[0][i+1] 
+
+      for j in range(fila): 
+         if matriz[j][i] < minimo: #accedemos a cada valor de fila y columna 
+            minimo = matriz[j][i]
+         if matriz[j][i+1] < minimo_siguiente:
+            minimo_siguiente = matriz[j][i+1]
+      
+      if minimo >= minimo_siguiente: 
+         return False 
+   
+   return True 
+
+m1 = [
+    [5, 9, 7],
+    [3, 10, 11],
+    [4, 8, 6]
+]  # min: 3, 8, 6 → 3<8 ✅, 8<6 ❌ → False
+
+m2 = [
+    [1, 4, 7],
+    [2, 5, 8],
+    [3, 6, 9]
+]  # min: 1, 4, 7 → 1<4<7 → True
+
+print(matriz_pseudo_ordenada(m1))  # False
+print(matriz_pseudo_ordenada(m2))
+
+
+"""problema maximas_cantidades_consecutivos (in v: seq⟨Z⟩) :
+ Diccionario⟨Z,Z⟩ {
+ requiere: { True }
+ asegura: { Las claves de res son exactamente los números que
+ aparecen al menos una vez en v }
+ asegura: { Para cada clave k de res, su valor es igual a la
+ máxima cantidad de apariciones consecutivas de k en v, donde
+ dicha cantidad de apariciones es mayor o igual 1. }
+ }"""
+
+def maxima_cantidades_consecutivos ( v : list[int]) -> dict[int,int]: 
+   res = {} 
+   numero_actual = v[0] 
+   contador = 0
+
+   for i in range(len(v)): 
+      if numero_actual == v[i]: 
+         contador += 1 
+      else: 
+         if numero_actual not in res or contador > res[numero_actual]: #primero se pregunta si ya existe una racha de numeros en res 
+           res[numero_actual] = contador #si no existe se agrega el numero como clave y el contador como valor 
+         numero_actual = v[i] #reinicia el conteo 
+         contador = 1 
+   return res 
+ 
+v = [1, 1, 2, 2, 2, 3, 1, 1, 2]
+print(maxima_cantidades_consecutivos(v))
+
+
+""" problema maxima_cantidad_primos(in A: seq⟨seq⟨Z⟩⟩) : Z {
+ requiere: { Todas las filas de A tienen la misma longitud }
+ asegura: { Existe alguna columna c en A para la cual res de sus
+ elementos son números primos }
+ asegura: { Todas las columnas de A tienen a lo sumo res
+ elementos que son números primos }"""
+
+def es_primo (a : int) -> bool : 
+   if a < 2:
+      return False 
+   i = 2 
+   while i * i <= a: 
+      if n % i == 0: 
+         return False 
+      i += 1 
+   return True 
+
+def maxima_cantidad_primos (a : list[list[int]]) -> int: 
+   res = 0 
+
+   for j in range(len(a[0])): #empezar con columna porque pide las columnas
+      contador = 0 
+      for i in range(len(a)):
+         c = a[i][j]
+         if es_primo(c):
+            contador += 1 
+      if contador > res:
+            res = contador 
+   return res 
+
+
+matriz = [
+    [2, 4, 5],
+    [3, 6, 7],
+    [5, 8, 9]
+]
+print(maxima_cantidad_primos(matriz))
+
+""" problema tuplas_positivas_y_negativas(inout c: Cola⟨ZxZ⟩ ) {
+ requiere: { c no tiene tuplas repetidas }
+ modifica: { c }
+ asegura: { c contiene todas las tuplas positivas y todas las
+ tuplas negativas de c@pre y además no contiene ninguna otra
+ tupla }
+ asegura: { No hay niguna tupla negativa en c que aparezca
+antes que alguna tupla positiva }
+ asegura: { Para todas las tuplas positivas t1 y t2 en c, con t1 !=
+ t2, si t1 aparece antes que t2 en c@pre, entonces t1 aparece antes
+ que t2 en c }
+ asegura: { Para todas las tuplas negativas t1 y t2 en c, con t1 !=
+ t2, si t1 aparece antes que t2 en c@pre, entonces t1 aparece antes
+ que t2 en c }
+ }"""
+
+def tuplas_positivas_y_negativas (c : Cola) -> Cola: 
+   tupla_positiva = Cola()
+   tupla_negativa = Cola()
+
+   while not c.empty(): 
+      elemento = c.get()
+      if elemento[0] > 0 and elemento[1] > 0: 
+         tupla_positiva.put(elemento)
+      elif elemento[0] < 0 and  elemento[1] < 0: 
+         tupla_negativa.put(elemento)
+   
+   while not tupla_positiva.empty(): 
+      c.put(tupla_positiva.get())
+   while not tupla_negativa.empty(): 
+      c.put(tupla_negativa.get())
+
+c = Cola()
+c.put((1, 2))
+c.put((3, 3))     # No válida, porque los elementos son iguales
+c.put((-2, -3))
+c.put((4, 5))
+c.put((-1, -1))   # No válida, porque los elementos son iguales
+c.put((10, 20))
+
+print(tuplas_positivas_y_negativas(c))
+
+"""problema filtrar_pares_y_multiplos(inout c: Cola⟨Z⟩)
+requiere: {c tiene números enteros (positivos, negativos y ceros)}
+modifica: {c}
+asegura: {
+    c contiene solo los valores pares positivos de c@pre,
+    seguidos de los múltiplos negativos de 3 de c@pre,
+    y están en el mismo orden que en c@pre.
+}"""
+
+def filtrar_pares_y_multiplos (c : Cola)  -> None : 
+   valores_pares_positivos = Cola()
+   multiplos_negativos_de_3 = Cola()
+
+   while not c.empty(): 
+      elemento = c.get() 
+
+      if elemento % 2 == 0 and elemento > 0: 
+         valores_pares_positivos.put(elemento)
+      elif elemento % 3 == 0 and elemento < 0: 
+         multiplos_negativos_de_3.put(elemento)
+      
+   while not valores_pares_positivos.empty(): 
+      c.get(valores_pares_positivos.get())
+   
+   while not multiplos_negativos_de_3.empty(): 
+      c.get(multiplos_negativos_de_3())
+
+
+def ordenar_cliente_por_prioridad (c : Cola) -> dict[str,list[str]]:  #colas con tuplas y diccioanrio
+   res = {}
+   alta = []
+   media = []
+   baja = []
+
+   while not c.empty(): 
+      nombre , prioridad = c.get() #usamos asi porque lo que esta dentro de la cola es una tupla
+      if prioridad not in res: 
+         res[prioridad] = [] #inicializamos vacio para ir agregandole 
+      res[prioridad].append(nombre)
+      
+
+   return res  
+
+
+c = Cola()
+c.put(("Ana", "media"))
+c.put(("Luis", "alta"))
+c.put(("Marta", "baja"))
+c.put(("Pedro", "alta"))
+
+print(ordenar_cliente_por_prioridad(c))
+
+
+def cargar_pacientes_en_salas (c : Cola, salas : list[list[int]]) -> None: 
+   res = []
+
+   while not c.empty(): 
+      paciente ,sala = c.get()
+      fila = salas[sala]
+
+      for i in range(len(fila)): 
+         if fila[i] == " ": 
+            fila[i] = paciente
+            break  
+
+
+
+ 
